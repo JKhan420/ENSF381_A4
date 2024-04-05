@@ -1,61 +1,75 @@
-// Productpage.js
 import React, { useState, useEffect } from 'react';
 import Header from './Header';
 import ProductList from './ProductList';
 import Cart from './Cart';
-import productsData from '../data/products';
 import Footer from './Footer';
+import productsData from '../data/products';
+import { Link } from 'react-router-dom';
 
 const Productpage = () => {
-  const [cart, setCart] = useState([]);
+  const [cartItems, setCartItems] = useState([]);
 
-  // Load cart items from local storage on component mount
+  // Load cart items from localStorage on component mount
   useEffect(() => {
-    const savedCart = JSON.parse(localStorage.getItem('cart'));
-    console.log('Loaded cart from local storage:', savedCart);
-    if (savedCart) {
-      setCart(savedCart);
+    const storedCartItems = localStorage.getItem('cartItems');
+    if (storedCartItems) {
+      console.log("Loaded cart items from localStorage:", storedCartItems);
+      console.log("Loaded cart items in JSON", JSON.parse (storedCartItems));
+      setCartItems(JSON.parse(storedCartItems));
+  
     }
-  }, []);
+  }, []); 
 
-  // Save cart items to local storage whenever cart changes
+  
   useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(cart));
-    console.log('Saved cart to local storage:', cart);
-  }, [cart]);
+    console.log("Productpage component rerendered");
+    localStorage.setItem('cartItems', JSON.stringify(cartItems));
+  }, [cartItems]); 
 
-  // Function to add item to cart
   const addToCart = (product) => {
-    // Check if product is already in cart
-    const existingItem = cart.find((item) => item.id === product.id);
-    if (existingItem) {
-      const updatedCart = cart.map((item) =>
-        item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
-      );
-      setCart(updatedCart);
+    const existingItemIndex = cartItems.findIndex(item => item.id === product.id);
+    if (existingItemIndex !== -1) {
+      const updatedCartItems = cartItems.map((item, index) => {
+        if (index === existingItemIndex) {
+          return { ...item, quantity: item.quantity + 1 };
+        }
+        return item;
+      });
+      setCartItems(updatedCartItems);
+      localStorage.setItem('cartItems', JSON.stringify(updatedCartItems)); // Update localStorage
     } else {
-      setCart([...cart, { ...product, quantity: 1 }]);
+      const updatedCartItems = [...cartItems, { ...product, quantity: 1 }];
+      setCartItems(updatedCartItems);
+      localStorage.setItem('cartItems', JSON.stringify(updatedCartItems)); // Update localStorage
     }
   };
-
-  // Function to remove item from cart
+  
   const removeFromCart = (productId) => {
-    const updatedCart = cart.map((item) =>
-      item.id === productId ? { ...item, quantity: item.quantity - 1 } : item
-    );
-    setCart(updatedCart.filter((item) => item.quantity > 0));
+    const updatedCartItems = cartItems.map(item => {
+      if (item.id === productId) {
+        if (item.quantity === 1) {
+          return null;
+        } else {
+          return { ...item, quantity: item.quantity - 1 };
+        }
+      }
+      return item;
+    }).filter(item => item !== null); // Filter out null entries to remove removed items from cart
+  
+    setCartItems(updatedCartItems);
+    localStorage.setItem('cartItems', JSON.stringify(updatedCartItems)); // Update localStorage
   };
-
-  console.log('Current cart state:', cart);
 
   return (
-    <div className="product-page">
+    <div>
       <Header />
       <table>
-        <tr>
-          <td><ProductList products={productsData} addToCart={addToCart} /></td>
-          <td style={{verticalAlign:'top'}}><Cart cart={cart} removeFromCart={removeFromCart} /></td>
-        </tr>
+        <tbody>
+          <tr>
+            <td><ProductList products={productsData} onAddToCart={addToCart} /></td>
+            <td style={{ verticalAlign: 'top' }}><Cart cartItems={cartItems} onRemove={removeFromCart} /></td>
+          </tr>
+        </tbody>
       </table>
       <Footer />
     </div>

@@ -2,16 +2,19 @@
 import React from 'react';
 import CartItem from './CartItem';
 
-const Cart = ({ cart, removeFromCart }) => {
-  const totalPrice = cart.reduce((acc, item) => acc + item.price * item.quantity, 0).toFixed(2);
+
+const Cart = ({ cartItems, onRemove }) => {
+  const getTotalPrice = () => {
+    return cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
+  };
 
   return (
-    <div className="cart" style={{ float: 'right', width: '30%' }}>
+    <div className="cart">
       <h2>Shopping Cart</h2>
-      {cart.map((item, index) => (
-        <CartItem key={index} item={item} removeFromCart={removeFromCart} />
+      {cartItems.map((item) => (
+        <CartItem key={item.id} product={item} onRemove={onRemove} />
       ))}
-      <h3>Total Price: ${totalPrice}</h3>
+      <div className="total">Total (in cart): ${getTotalPrice().toFixed(2)}</div>
     </div>
   );
 };
