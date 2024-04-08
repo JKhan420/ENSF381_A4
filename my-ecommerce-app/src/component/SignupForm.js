@@ -1,4 +1,3 @@
-// SignupForm.js
 import React, { useState } from 'react';
 
 const SignupForm = ({ onSwitchForm }) => {
@@ -7,17 +6,57 @@ const SignupForm = ({ onSwitchForm }) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [email, setEmail] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (username.trim() === '' || password.trim() === '' || confirmPassword.trim() === '' || email.trim() === '') {
       alert('Please fill out all fields.');
       return;
     }
+
     if (password !== confirmPassword) {
       alert('Passwords do not match.');
       return;
     }
-    // Handle signup functionality
+
+    // Constructing the user object
+    const user = {
+      username: username,
+      password: password,
+      email: email,
+    };
+
+    // Making a POST request to the /register endpoint with the user data
+    try {
+      const response = await fetch('http://127.0.0.1:5000/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(user),
+      });
+
+      const data = await response.json();
+
+      // Check if the request was successful
+      if (response.ok) {
+        alert('Signup successful!');
+        // Optionally reset form or redirect user
+        // Reset form fields
+        setUsername('');
+        setPassword('');
+        setConfirmPassword('');
+        setEmail('');
+        // Optionally switch to login form or another action
+        // onSwitchForm();
+      } else {
+        // Handle errors, such as username already exists
+        alert(data.error || 'An error occurred. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('An error occurred. Please try again later.');
+    }
   };
 
   return (

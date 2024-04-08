@@ -1,16 +1,38 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Homepage from './component/Homepage'; // Ensure the path is correct. It might be './components/Homepage' if your folder is named 'components'
-import Productpage from './component/Productpage'; // Import the Productpage component
-import LoginPage from './component/LoginPage';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import Homepage from './component/Homepage'; // Corrected the path to the Homepage component
+import Productpage from './component/Productpage'; // Corrected the path to the Productpage component
+import LoginPage from './component/LoginPage'; // Corrected the path to the LoginPage component
+
+// Function to check if the user is authenticated
+const isAuthenticated = () => {
+  return localStorage.getItem('isAuthenticated') === 'true';
+};
+
+// ProtectedRoute component
+const ProtectedRoute = ({ children }) => {
+  if (!isAuthenticated()) {
+    // If not authenticated, redirect to the login page
+    return <Navigate to="/login" />;
+  }
+  return children;
+};
+
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Homepage />} />
-        <Route path="/products" element={<Productpage />} />
-        <Route path="/Login" element={<LoginPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route 
+          path="/products" 
+          element={
+            <ProtectedRoute>
+              <Productpage />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </Router>
   );
