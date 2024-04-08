@@ -1,10 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 const LoginForm = ({ onSwitchForm }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate(); // Initialize useNavigate
+
+  useEffect(() => {
+    localStorage.setItem('isAuthenticated', 'false'); 
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

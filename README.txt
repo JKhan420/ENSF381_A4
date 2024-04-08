@@ -1,6 +1,7 @@
 # ENSF381_A4
 
 Packages that needed to be installed:
+- npm i
 - npm install react-router-dom
 
 Packages needed to be installed/ activated:
